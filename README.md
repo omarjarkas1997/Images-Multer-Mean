@@ -34,3 +34,15 @@ They are specified in ket value pairs.
 
 After Sending the file to the server, we can see the it was directly saved in a folder named uploads. **(This is done without even giving permission to the statis folder)**
 
+##### Adjusting How files gets store
+
+We can see that the files are being store in a non organized fashion. We can specify how the files need to be stored exactly using the below module found in multer.
+
+            const storage = multer.diskStorage({
+                destination: function(req, file, cb){
+
+                },
+                filename: function(req, file, cb) {
+                    
+                }
+            });
