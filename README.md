@@ -46,3 +46,120 @@ We can see that the files are being store in a non organized fashion. We can spe
                     
                 }
             });
+
+In the destination, we pass the path where we want to store the file in the callback handler. In this case we specify the file we uploaded before.
+
+In the filename, we specify how the file should look like. 
+We can use:
+1. **file.filename**, *the property is in the req body*
+2. Assign a new date to the file name and concatinate this with the original name
+
+            *new Date().toISOString() + file.originalname*
+
+
+                const storage = multer.diskStorage({
+                    destination: function(req, file, cb){
+                        cb(null, './uploads/');
+                    },
+                    filename: function(req, file, cb) {
+                        cb(null, new Date().toISOString().replace(/:/g, '-') + file.originalname ); 
+                    }
+                });
+
+
+We need to pass the storage to multer in order for the middleware to work.
+
+from: 
+
+            const upload = multer({dest: 'uploads/'});
+to: 
+            const upload = multer({storage: storage});
+
+#### Setting a limit to only accept certain files
+
+            const upload = multer({storage: storage, limits: {
+                fileSize: 1024 * 1024 * 5
+            }});
+
+#### You can also setup some filters
+
+The below filter function onyl accepts file with jpeg or png extentions
+
+
+            const fileFilter = (req, res, cb) => {
+
+                if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+                    // accept a file with the below cb
+                    cb(null, true);
+                }else {
+                    // reject a file with the below cb
+                    cb(null, false);
+                }
+            }
+
+We must now add one additional property which is file filter to the upload defined earlier.
+
+
+## Getting the files
+
+1. First we need to change our db model to accept image info
+
+
+                    var UserSchema = new Schema({
+                    firstName: {
+                        type: String,
+                        required: true,
+                        trim: true
+                    },
+                    lastName: {
+                        type: String,
+                        required: true,
+                        trim: true
+                    },
+                    email: {
+                        type: String,
+                        unique: true,
+                        required: true,
+                        trim: true
+                    },
+                    password: {
+                        type: String,
+                        required: true
+                    },
+                    userImage: { type: String}
+                });
+
+2. Save the server file path on the db
+
+
+                const user = new User({
+                    _id: new mongoose.Types.ObjectId(),
+                    firstName: req.body.firstName,
+                    lastName: req.body.lastName,
+                    email: req.body.email,
+                    password: req.body.password,
+                    userImage: req.file.path
+                });
+
+
+3. Make the file path publically available to veiw
+                // Making images publically avaible 
+
+                app.use(express.static('uploads'));
+
+4. Viewing images
+
+        http://localhost:3000/uploads/1597121153984omar.jpg
+
+# Upload Files from Angular to Express js and Mongo
+
+
+
+
+
+
+
+
+
+
+
